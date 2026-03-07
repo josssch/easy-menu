@@ -81,7 +81,14 @@ struct ScriptEditorView: View {
                         .truncationMode(.middle)
 
                     Button("Choose...") { showFilePicker = true }
-                    Button("New", action: promptAndCreateScript)
+                    
+                    if !scriptItem.path.isEmpty {
+                        Button("Edit") {
+                            NSWorkspace.shared.open(URL(fileURLWithPath: scriptItem.path))
+                        }
+                    } else {
+                        Button("New", action: promptAndCreateScript)
+                    }
                 }
                 .padding(.bottom, 4)
                 
