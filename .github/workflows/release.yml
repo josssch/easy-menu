@@ -1,0 +1,55 @@
+name: Release
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    build:
+        runs-on: macos-26
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Build archive
+              run: |
+                  xcodebuild archive \
+                    -project ezmenu.xcodeproj \
+                    -scheme ezmenu \
+                    -configuration Release \
+                    -archivePath build/ezmenu.xcarchive \
+                    CODE_SIGN_IDENTITY="" \
+                    CODE_SIGNING_REQUIRED=NO \
+                    CODE_SIGNING_ALLOWED=NO
+
+            - name: Export .app
+              run: |
+                  xcodebuild -exportArchive \
+                    -archivePath build/ezmenu.xcarchive \
+                    -exportPath build/export \
+                    -exportOptionsPlist /dev/stdin <<EOF
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+                  <plist version="1.0">
+                  <dict>
+                      <key>method</key>
+                      <string>mac-application</string>
+                      <key>signingStyle</key>
+                      <string>manual</string>
+                  </dict>
+                  </plist>
+                  EOF
+
+            - name: Create .dmg
+              run: |
+                  hdiutil create \
+                    -volname EasyMenu \
+                    -srcfolder build/export/ezmenu.app \
+                    -ov \
+                    -format UDZO \
+                    build/EasyMenu.dmg
+
+            - name: Upload .dmg to release
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: build/EasyMenu.dmg
