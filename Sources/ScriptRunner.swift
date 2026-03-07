@@ -115,7 +115,11 @@ class ScriptRunner {
             process.standardOutput = pipe
             process.standardError = pipe
             
-            process.environment = ProcessInfo.processInfo.environment.merging(["NO_COLOR": "1"]) { _, new in new }
+            process.environment = ProcessInfo.processInfo.environment.merging([
+                "NO_COLOR": "1",
+                "CLICOLOR": "0",
+                "TERM": "dumb"
+            ]) { _, new in new }
             
             let output = ScriptOutputBuffer()
             pipe.fileHandleForReading.readabilityHandler = { handle in
