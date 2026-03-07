@@ -68,6 +68,8 @@ struct ScriptMenuItem: View {
     let onStop: () -> Void
 
     var body: some View {
+        let lastRun = item.latestRun()
+        
         Menu {
             Section {
                 Button("Run", systemImage: "play.fill", action: onRun)
@@ -79,7 +81,7 @@ struct ScriptMenuItem: View {
                 Section("Currently running...") {
                     Button("Stop", systemImage: "stop.fill", action: onStop)
                 }
-            } else if let lastRun = item.latestRun() {
+            } else if let lastRun {
                 Section("Finished \((lastRun.createdAt - 1).formatted(.relative(presentation: .numeric)))") {
                     let lines = lastRun.lines.components(separatedBy: "\n")
                     ForEach(lines.indices, id: \.self) { i in
@@ -98,7 +100,13 @@ struct ScriptMenuItem: View {
                 .id("\(item.persistentModelID)-\(tick)")
             }
         } label: {
-            Label(item.label, systemImage: isRunning ? "slowmo" : "play.fill")
+            let icon: String = {
+                guard !isRunning else { return "slowmo" }
+                guard let run = lastRun, run.createdAt.distance(to: tick) < 120 else { return "play.fill" }
+                return run.exitCode == 0 ? "checkmark" : "xmark"
+            }()
+            
+            Label(item.label, systemImage: icon)
         } primaryAction: {
             if isRunning { return }
             
