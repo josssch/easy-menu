@@ -35,11 +35,11 @@ struct ScriptRunnerMenu: View {
         
         Divider()
         
-        Button("New Script...", systemImage: "applescript.fill") {
+        Button("New Script...", systemImage: "plus") {
             windowManager.open(.newScript)
         }
         
-        Button("Quit", systemImage: "xmark") {
+        Button("Quit", systemImage: "xmark.rectangle") {
             NSApplication.shared.terminate(nil)
         }
     }
