@@ -24,6 +24,10 @@ actor ScriptOutputBuffer {
         self.encoding = encoding
     }
     
+    private static func isBlank(_ string: String) -> Bool {
+        string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
     func append(_ data: Data) {
         let text = String(data: data, encoding: encoding)
         let current = (remaining ?? "") + (text ?? "")
@@ -31,6 +35,7 @@ actor ScriptOutputBuffer {
         var lines = current.components(separatedBy: "\n")
         remaining = lines.removeLast()
         
+        lines = lines.filter { !ScriptOutputBuffer.isBlank($0) }
         trailingLines.append(contentsOf: lines)
         if trailingLines.count > maxLines {
             trailingLines.removeFirst(trailingLines.count - maxLines)
@@ -38,7 +43,7 @@ actor ScriptOutputBuffer {
     }
     
     func flush() {
-        guard let remaining, !remaining.isEmpty else {
+        guard let remaining, !ScriptOutputBuffer.isBlank(remaining) else {
             return
         }
         
