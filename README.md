@@ -1,4 +1,4 @@
-# EzMenu
+# Easy Menu
 
 A very simple script runner that lives in your menu bar.
 
