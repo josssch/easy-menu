@@ -28,6 +28,7 @@ struct ScriptRunnerMenu: View {
                 tick: tick,
                 onRun: { runScript(item) },
                 onEdit: { openScriptEditor(item) },
+                onEditScript: { NSWorkspace.shared.open(URL(fileURLWithPath: item.path)) },
                 onStop: { let _ = scriptRunner.killScript(item.path) }
             )
         }
@@ -65,6 +66,7 @@ struct ScriptMenuItem: View {
     
     let onRun: () -> Void
     let onEdit: () -> Void
+    let onEditScript: () -> Void
     let onStop: () -> Void
 
     var body: some View {
@@ -72,10 +74,14 @@ struct ScriptMenuItem: View {
         
         Menu {
             Section {
-                Button("Run", systemImage: "play.fill", action: onRun)
-                Button("Edit Script...", systemImage: "square.and.pencil", action: onEdit)
+                Group {
+                    Button("Run", systemImage: "play.fill", action: onRun)
+                    Button("Edit...", systemImage: "slider.horizontal.3", action: onEdit)
+                }
+                .disabled(isRunning)
+                
+                Button("Open in Editor...", systemImage: "arrow.up.forward.square", action: onEditScript)
             }
-            .disabled(isRunning)
             
             if isRunning {
                 Section("Currently running...") {
